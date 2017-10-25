@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<modification>
+  <name>TermoRescisaoSindicato</name>
+  <id>TermoRescisaoSindicato</id>
+  <ecidade-version>2.3.39</ecidade-version>
+  <file path='pes2_termorescisao001.php'>
+    <operation>
+      <search regex="true"><![CDATA[pes2_termorescisao002.php]]></search>
+      <add>
+        <![CDATA[pes2_termorescisao002_natal.php]]>
+      </add>
+    </operation>
+  </file>
+  <file path='fpdf151/impcarne.php'>
+    <operation>
+      <search><![CDATA[if ($this->lUtilizaModeloDefault) {]]></search>
+      <add>
+        <![CDATA[if ($this->lUtilizaModeloDefault) {
+        
+        if ($this->impmodelo == 34) {
+          $this->impmodelo = "34_natal"; 
+        }
+]]>
+      </add>
+    </operation>
+  </file>
+
+  <file path='pes2_termorescisaomodimprime80.php'>
+    <operation>
+      <search regex="true"><![CDATA[(\$nRemuneracaoAnterior\s*=.*\$nRemuneracaoAnterior.*\);)]]></search>
+      <add>
+        <![CDATA[$sSqlRenuneracaoAnterior = "select coalesce(sum(r14_valor),0) as remuneracao
+                                from basesr 
+                                     inner join gerfsal  on gerfsal.r14_anousu = basesr.r09_anousu 
+                                                        and gerfsal.r14_mesusu = basesr.r09_mesusu 
+                                                        and gerfsal.r14_rubric = basesr.r09_rubric 
+                                                        and gerfsal.r14_instit = basesr.r09_instit 
+                               where basesr.r09_base    = 'B109' 
+                                 and basesr.r09_anousu  = {$iAnoFolhaAnterior} 
+                                 and basesr.r09_mesusu  = {$iMesFolhaAnterior}
+                                 and gerfsal.r14_regist = {$oDadosServidor->rh01_regist}";
+  $rsRemuneracaoAnterior = db_query($sSqlRenuneracaoAnterior);
+  $nRemuneracaoAnterior = db_utils::fieldsMemory($rsRemuneracaoAnterior,0)->remuneracao;
+  
+  $1]]>
+      </add>
+    </operation>
+
+    <operation>
+      <search regex="true"><![CDATA[(\$oDadosServidor\s*=\s*db_utils::fieldsMemory\(\$rsRescisao,\s*\$iIndice\);)]]></search>
+      <add>
+        <![CDATA[$1
+
+  /**
+   * Buscamos a instituição de acordo com a lotacao do servidor 
+   */
+  $sSqlLotacao = "select rh02_lota
+                    from rhpessoalmov
+                   where rh02_anousu = {$iAnoFolha}
+                     and rh02_mesusu = {$iMesFolha}
+                     and rh02_regist = {$oDadosServidor->rh01_regist}
+                     and exists (select 1
+                                   from rhlota
+                                  where r70_codigo = rh02_lota
+                                    and r70_numcgm = (select numcgm from db_config where codigo = 2))";
+  $rsLotacao = db_query($sSqlLotacao);
+  if (pg_num_rows($rsLotacao) > 0) {
+
+    /**
+     * StdClass com todas as informacoes da instituicao
+     */
+    $oInstituicao = $oDaoDBConfig->getParametrosInstituicao(2);
+    
+    /**
+     * StdClass com as informacoes da instituicao usadas no relatorio
+     */
+    $oDadosInstituicao             = new StdClass();
+    $oDadosInstituicao->logo       = $oInstituicao->logo;
+    $oDadosInstituicao->sNome      = $oInstituicao->nomeinst;
+    $oDadosInstituicao->sEndereco  = $oInstituicao->ender.', '.$oInstituicao->numero;
+    $oDadosInstituicao->iCgc       = $oInstituicao->cgc;
+    $oDadosInstituicao->sBairro    = $oInstituicao->bairro;
+    $oDadosInstituicao->iCep       = trim(db_formatar($oInstituicao->cep, 'cep'));
+    $oDadosInstituicao->sUf        = $oInstituicao->uf;
+    $oDadosInstituicao->sMunicipio = $oInstituicao->munic;
+    $oDadosInstituicao->sTelefone  = $oInstituicao->telef;
+    $oDadosInstituicao->sEmail     = $oInstituicao->email;
+    $oDadosInstituicao->iCnae      = 38114;
+
+  }
+]]>
+      </add>
+    </operation>
+  </file>
+  
+</modification>

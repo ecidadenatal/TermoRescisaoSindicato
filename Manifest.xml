@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <plugin name="TermoRescisaoSindicato" label="Termo de Rescisao com informações do Sindicato" plugin-version="1.0" ecidade-version="2.3.39" id-modulo="952">
+   <id id="TermoRescisaoSindicato"> </id>
+   <files>
+    <file name="mod_imprime34_natal.php"         path="/fpdf151/impmodelos/mod_imprime34_natal.php" />
+    <file name="pes2_termorescisao002_natal.php" path="/pes2_termorescisao002_natal.php" />
+    <file name="TermoRescisaoSindicato.xml"      path="/modification/xml/TermoRescisaoSindicato.xml" />
+   </files>
+  </plugin>  
+</manifest>
